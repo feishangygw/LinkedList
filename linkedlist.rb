@@ -88,8 +88,16 @@ class LinkedList
 		end
 	end
 	
-	def find(data)
-		
+	def find#(data)
+		if block_given?
+			node = head
+			count = 0
+			until(node.nil?) do
+				return count if yield(node.value)
+				count += 1
+				node = node.next_node
+			end	
+		end
 	end
 	
 	def to_s
@@ -168,6 +176,10 @@ loop do
 		string = gets.chomp
 		puts list.contains? { |data| data == string } ? "A match has been found." : "Nothing matched."
 	when "f"
+		puts "---Find mode---"
+		print "string to search> "
+		string = gets.chomp
+		puts list.find { |data| data == string }
 	when "?"
 		help
 	when " "
