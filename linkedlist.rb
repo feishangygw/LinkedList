@@ -126,43 +126,47 @@ class LinkedList
 	end
 	
 	def insert_at(index, data)
-		index = 0 if head.nil?
-		index = self.size if index > size
+		return false unless index.between?(0, size)
 
+		node = Node.new(data)				
 
-		node = Node.new(data)				# Empty list
-		if size == 0
-			index = 0
+		if size == 0						# Empty list
 			self.head = node
-			self.tail = node
-			self.size += 1
-		elsif size == 1		 				# 1 element
-			if index == 0					# prepend				
-				node.next_node = head
-				self.head = node
-				self.size += 1
-			else 							# append
-				self.head.next_node = self.tail = node
-				self.size += 1				
-			end
-		else 								# 2 elements and above
+			self.tail = node		
+		else 								# Non empty list
 			if index == 0
 				node.next_node = head
-				self.head = node
-				self.size += 1
+				self.head = node				
 			elsif index < size				# prepend
 				node.next_node = at(index)
-				self.at(index - 1).next_node = node
-				self.size += 1
+				self.at(index - 1).next_node = node				
 			else							# append
-				self.tail.next_node = self.tail = node
-				self.size += 1
-			end
+				self.tail.next_node = self.tail = node				
+			end			
 		end	
+		self.size += 1
+		true
 	end
 
 	def remove_at(index)
+		return false if size == 0
+		return false unless index.between?(0, size - 1)
+
+		if size == 1
+			self.head = nil
+			self.tail = nil
+		else
+			if index == 0
+				self.head = head.next_node
+			elsif index < (size - 1)
+				self.at(index - 1).next_node = at(index).next_node
+			else
+				self.tail = at(index - 1)
+				self.tail.next_node = nil
+			end 
+		end
+		self.size -= 1
+		true
 	end
-	
 	
 end

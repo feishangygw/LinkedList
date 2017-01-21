@@ -14,7 +14,8 @@ def help
 			"help [?] show all commands",
 			"#to_s [<space>] represent your LinkedList objects as strings, so you can print them out and",
 			"#[i]nsert_at(index) that inserts the data at the given index",
-			"#[r]emove_at(index) that removes the node at the given index."
+			"#[r]emove_at(index) that removes the node at the given index.",
+			"#e[x]it to close"
 end
 
 list = LinkedList.new
@@ -62,14 +63,19 @@ loop do
 		result = list.find(gets.chomp)
 		puts result.nil? ? "Nothing matched." : "Found a match at index #{result}."
 	when "i"
-		puts "---Insert mode---"
-		print "string to insert> "
-		string = gets.chomp
+		puts "---Insert mode---"		
 		print "index> "
 		index = gets.to_i
+		print "string to insert> "
+		string = gets.chomp
 		list.insert_at(index, string)
 		puts list
-	when "d"
+	when "r"
+		puts "---Delete-at mode---"		
+		print "index> "
+		index = gets.to_i
+		puts list.remove_at(index) ? "Deleted successfully." : "Deletion Failed. Index is out of bounds."
+		puts list
 	when "?"
 		help
 	when " "
