@@ -9,37 +9,42 @@ class LinkedList
 	end
 	
 	attr_accessor :head, :tail
+	attr_reader :size
+
+
+	private
+
+	attr_writer :size
+
+
+	public
+
+	def initialize
+		@size = 0
+	end
 	
 	def append(data)
 		node = Node.new(data)
-		if head.nil?
+		if size == 0
 			self.head = self.tail = node
-		elsif head.next_node.nil?
+		elsif size == 1
 			self.head.next_node = self.tail = node
 		else
 			self.tail.next_node = node
 			self.tail = node
 		end
+		self.size += 1
 	end
 	
 	def prepend(data)
-		node = Node.new(data)
-		if head.nil?
+		node = Node.new(data)		
+		if size == 0
 			self.head = self.tail = node
 		else
 			node.next_node = head
 			self.head = node
 		end
-	end
-	
-	def size
-		count = 0
-		node = head
-		loop do
-			return count if node.nil?
-			count += 1
-			node = node.next_node
-		end
+		self.size += 1
 	end
 	
 	def at(index)
@@ -54,24 +59,17 @@ class LinkedList
 	end
 	
 	def pop
-		return if head.nil?
+		return if size == 0
 		
-		value = tail
-		
-		if head.next_node.nil?
-			self.head = self.tail = nil 
-			return value
+		value = tail		
+		if size == 1
+			self.head = self.tail = nil			
+		else		
+			node = find_node { |node_| node_.next_node.eql? tail }			
+			node.next_node = nil
+			self.tail = node
 		end
-		
-		node = head
-		loop do
-			break if node.next_node.eql? tail
-			node = node.next_node
-		end
-		
-		node.next_node = nil
-		self.tail = node
-		
+		self.size -= 1
 		return value
 	end
 	
@@ -87,17 +85,31 @@ class LinkedList
 			return true
 		end
 	end
+
+	def find_node
+		if block_given?
+			node = head
+			until(node.nil?) do
+				return node if yield(node)
+				node = node.next_node
+			end	
+		end
+	end
 	
-	def find#(data)
+	def find_by
 		if block_given?
 			node = head
 			count = 0
 			until(node.nil?) do
-				return count if yield(node.value)
+				return count if yield(node)
 				count += 1
 				node = node.next_node
 			end	
 		end
+	end
+
+	def find(data)
+		find_by { |node| node.value == data }
 	end
 	
 	def to_s
@@ -108,12 +120,45 @@ class LinkedList
 				string += "nil"
 				return string
 			end
-			string += "#{node.value.inspect} -> "
+			string += "(#{node.value}) -> "
 			node = node.next_node
 		end
 	end
 	
-	def insert_at(index)
+	def insert_at(index, data)
+		index = 0 if head.nil?
+		index = self.size if index > size
+
+
+		node = Node.new(data)				# Empty list
+		if size == 0
+			index = 0
+			self.head = node
+			self.tail = node
+			self.size += 1
+		elsif size == 1		 				# 1 element
+			if index == 0					# prepend				
+				node.next_node = head
+				self.head = node
+				self.size += 1
+			else 							# append
+				self.head.next_node = self.tail = node
+				self.size += 1				
+			end
+		else 								# 2 elements and above
+			if index == 0
+				node.next_node = head
+				self.head = node
+				self.size += 1
+			elsif index < size				# prepend
+				node.next_node = at(index)
+				self.at(index - 1).next_node = node
+				self.size += 1
+			else							# append
+				self.tail.next_node = self.tail = node
+				self.size += 1
+			end
+		end	
 	end
 
 	def remove_at(index)
@@ -121,77 +166,3 @@ class LinkedList
 	
 	
 end
-
-def help
-	puts	"#[a]ppend adds a new node to the end of the list",
-			"#[p]repend adds a new node to the start of the list",
-			"#[s]ize returns the total number of nodes in the list",
-			"#[h]ead returns the first node in the list",
-			"#[t]ail returns the last node in the list",
-			"#at(index) [@] returns the node at the given index",
-			"#p[o]p removes the last element from the list",
-			"#[c]ontains? returns true if the passed in value is in the list and otherwise returns false.",
-			"#[f]ind(data) returns the index of the node containing data, or nil if not found.",
-			"help [?] show all ",
-			"#to_s [<space>] represent your LinkedList objects as strings, so you can print them out and"
-end
-
-list = LinkedList.new
-
-help
-
-
-loop do
-	puts
-	print "command> "
-	case gets.chomp
-	when "a"
-		puts "---Append mode---"
-		print "string> "
-		list.append(gets.chomp)
-		puts list
-	when "p"
-		puts "---Prepend mode---"
-		print "string> "
-		list.prepend(gets.chomp)
-		puts list
-	when "s"
-		puts list.size
-	when "h"
-		p list.head.nil? ? nil : list.head.value.to_s
-	when "t"
-		p list.tail.nil? ? nil : list.tail.value.to_s
-	when "@"
-		puts "---At(index) mode---"
-		print "index> "
-		index = gets.to_i
-		 puts list.at(index).nil? ? "Index out of bounds." : list.at(index).value
-	when "o"
-		puts "---Pop mode---"
-		popped = list.pop
-		puts popped.nil? ? "The list is empty." : "Updated list: #{list}\nPopped: #{popped.value}"
-	when "c"
-		puts "---Contains? mode---"
-		print "string to search> "
-		string = gets.chomp
-		puts list.contains? { |data| data == string } ? "A match has been found." : "Nothing matched."
-	when "f"
-		puts "---Find mode---"
-		print "string to search> "
-		string = gets.chomp
-		puts list.find { |data| data == string }
-	when "?"
-		help
-	when " "
-		puts "---Print mode---"
-		puts list
-	when "x"
-		puts "Exiting..."
-		break
-	else
-		puts "Invalid command."
-	end
-end
-
-
-
