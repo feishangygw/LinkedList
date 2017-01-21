@@ -80,12 +80,16 @@ class LinkedList
 			node = head
 			until(node.nil?) do
 				return true if yield(node.value)
-				node.next_node
+				node = node.next_node
 			end
+			return false
+		else
+			return true
 		end
 	end
 	
 	def find(data)
+		
 	end
 	
 	def to_s
@@ -157,8 +161,12 @@ loop do
 	when "o"
 		puts "---Pop mode---"
 		popped = list.pop
-		puts popped.nil? ? "The list is empty." : popped.value.to_s
+		puts popped.nil? ? "The list is empty." : "Updated list: #{list}\nPopped: #{popped.value}"
 	when "c"
+		puts "---Contains? mode---"
+		print "string to search> "
+		string = gets.chomp
+		puts list.contains? { |data| data == string } ? "A match has been found." : "Nothing matched."
 	when "f"
 	when "?"
 		help
@@ -168,7 +176,6 @@ loop do
 	when "x"
 		puts "Exiting..."
 		break
-		#exit
 	else
 		puts "Invalid command."
 	end
