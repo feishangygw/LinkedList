@@ -68,13 +68,13 @@ loop do
 		index = gets.to_i
 		print "string to insert> "
 		string = gets.chomp
-		list.insert_at(index, string)
+		puts list.insert_at(index, string)? "Inserted successfully." : "Insertion failed. Index is out of bounds."
 		puts list
 	when "r"
 		puts "---Delete-at mode---"		
 		print "index> "
 		index = gets.to_i
-		puts list.remove_at(index) ? "Deleted successfully." : "Deletion Failed. Index is out of bounds."
+		puts list.remove_at(index) ? "Deleted successfully." : "Deletion failed. Index is out of bounds."
 		puts list
 	when "?"
 		help
